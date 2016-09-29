@@ -824,6 +824,51 @@ TestResult test_GameScore() {
     
     return TR_PASS;
 }
+
+// Test for Figure 1 example (by Hamish O'Neill)
+TestResult test_fig1() {
+    Grid* grid = new Grid(6, 7);
+    Game game;
+    game.setGrid(grid);
+    Player p1("Nick");
+    game.setPlayerOne(&p1);
+    Player p2("Nasser");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+
+    // Play turns
+    ASSERT(game.playNextTurn(3)); // p1
+    ASSERT(game.playNextTurn(2)); // p2
+    ASSERT(game.playNextTurn(4)); // p1
+    ASSERT(game.playNextTurn(3)); // p2
+    ASSERT(game.playNextTurn(4)); // p1
+    ASSERT(game.playNextTurn(3)); // p2
+    ASSERT(game.playNextTurn(5)); // p1
+    ASSERT(game.playNextTurn(4)); // p2
+    ASSERT(game.playNextTurn(6)); // p1
+
+    // Check grid state
+    std::string gridState = "       "
+            "       "
+            "       "
+            "   22  "
+            "   21  "
+            "  21111";
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check game status is complete and no more turns can be played
+    ASSERT(game.status() == Game::GS_COMPLETE);
+    ASSERT(!game.playNextTurn(0));
+    ASSERT(game.winner() == &p1);
+    ASSERT(game.nextPlayer() == 0);
+    ASSERT(p2.getScore() == 0);
+    ASSERT(p2.getWins() == 0);
+    ASSERT(p1.getScore() == 1);
+    ASSERT(p1.getWins() == 1);
+
+    return TR_PASS;
+}
+
 #endif /*ENABLE_T3_TESTS*/
 
 #ifdef ENABLE_T4_TESTS
@@ -1096,6 +1141,56 @@ TestResult test_fig5() {
     return TR_PASS;
 }
 
+
+//Test stalemate game where the grid is completely full but no rows of 4 have been made in any direction. (by Hamish O'Neill)
+TestResult test_SuperGameWin() {
+    // Use a minimal grid size to limit the number of moves that need to be played
+    Grid* grid = new Grid(4, 4);
+    SuperGame game;
+    game.setGrid(grid);
+    Player p1("Nick");
+    game.setPlayerOne(&p1);
+    Player p2("Nasser");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+
+    // Give player 2 a higher score
+    p1.increaseScore();
+    p2.increaseScore();
+    p2.increaseScore();
+
+    // Play turns; 4 per row, alternating groups of two rows at a time to make sure we don't trigger a win
+    for (int i = 0; i < 2; ++i) {
+        ASSERT(game.playNextTurn(0));
+        ASSERT(game.playNextTurn(2));
+        ASSERT(game.playNextTurn(1));
+        ASSERT(game.playNextTurn(3));
+        ASSERT(game.playNextTurn(2));
+        ASSERT(game.playNextTurn(0));
+        ASSERT(game.playNextTurn(3));
+        ASSERT(game.playNextTurn(1));
+    }
+
+    // Check grid state
+    std::string gridState = "2211"
+            "1122"
+            "2211"
+            "1122";
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check game status is complete and no more turns can be played
+    ASSERT(game.status() == Game::GS_COMPLETE);
+    ASSERT(!game.playNextTurn(0));
+    ASSERT(game.winner() == &p2);
+    ASSERT(game.nextPlayer() == 0);
+    ASSERT(p2.getScore() == 2);
+    ASSERT(p2.getWins() == 1);
+    ASSERT(p1.getScore() == 1);
+    ASSERT(p1.getWins() == 0);
+
+    return TR_PASS;
+}
+
 #endif /*ENABLE_T4_TESTS*/
 
 /*
@@ -1133,12 +1228,14 @@ vector<TestResult (*)()> generateTests() {
     tests.push_back(&test_GameWinP1H);
     tests.push_back(&test_GameWinP1V);
     tests.push_back(&test_GameScore);
+    tests.push_back(&test_fig1);
 #endif /*ENABLE_T3_TESTS*/
 #ifdef ENABLE_T4_TESTS
     tests.push_back(&test_SuperGameMoveSimple);
     tests.push_back(&test_SuperGameMoveExample1);
     tests.push_back(&test_fig4);
     tests.push_back(&test_fig5);
+    tests.push_back(&test_SuperGameWin);
 #endif /*ENABLE_T4_TESTS*/
 
     return tests;

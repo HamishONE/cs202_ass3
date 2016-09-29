@@ -18,12 +18,10 @@ bool SuperGame::playNextTurn(unsigned int column) {
     }
 
     while (findWinner() != 0) {
-        //findWinner()->increaseScore();
 
         for (unsigned int i=0; i<findAllWinners().size(); i++) {
             findAllWinners()[i]->increaseScore();
         }
-
         removeFour();
     }
 
@@ -34,26 +32,36 @@ bool SuperGame::playNextTurn(unsigned int column) {
         currentPlayer = player1;
     }
 
-    // Check for game end
-    bool done = true;
-    for (unsigned int i=0; i<grid->columnCount(); i++) {
-        if (grid->cellAt(0, i) == Grid::GC_EMPTY) {
-            done = false;
-        }
-    }
-
-    // If so find winner
-    if (done) {
-        gameStatus = GS_COMPLETE;
-        if (player1->getScore() > player2->getScore()) {
-            player1->increaseWins();
-        }
-        if (player2->getScore() > player1->getScore()) {
-            player2->increaseWins();
-        }
-    }
+    findEnd();
 
     return true;
+}
+
+void SuperGame::findEnd() {
+
+    for (unsigned int i=0; i<grid->columnCount(); i++) {
+        if (grid->cellAt(0, i) == Grid::GC_EMPTY) {
+            return;
+        }
+    }
+
+    gameStatus = GS_COMPLETE;
+    if (player1->getScore() > player2->getScore()) {
+        player1->increaseWins();
+        winningPlayer = player1;
+    }
+    if (player2->getScore() > player1->getScore()) {
+        player2->increaseWins();
+        winningPlayer = player2;
+    }
+}
+
+const Player* SuperGame::winner() const {
+
+    if (gameStatus != GS_COMPLETE) {
+        return 0;
+    }
+    return winningPlayer;
 }
 
 void addToList(std::vector< std::pair<unsigned int, unsigned int> > &list, std::pair<unsigned int, unsigned int> pair) {
