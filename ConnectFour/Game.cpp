@@ -6,7 +6,6 @@ Game::Game() {
     player1 = 0;
     player2 = 0;
     currentPlayer = player1;
-    theWinner = 0;
 }
 
 Game::~Game() {

@@ -1,4 +1,3 @@
-#include <set>
 #include "SuperGame.hpp"
 
 bool SuperGame::playNextTurn(unsigned int column) {

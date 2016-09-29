@@ -32,11 +32,6 @@ public:
     Grid(unsigned int rows, unsigned int columns);
 
     /*
-    Grid destructor, cleans up any resoucres owned by this class (such as heap-allocated memory)
-    */
-    ~Grid();
-
-    /*
     Insert a new disc at the specified column of the Grid. The disc to be inserted is specified by the `disc` parameter.
     If the disc is GC_EMPTY, nothing will be inserted into the Grid. Otherwise, a disc is inserted for the corresponding
     player.
@@ -75,20 +70,7 @@ public:
 private:
     unsigned int rows;
     unsigned int cols;
-
-    class Column {
-    public:
-        Column(unsigned int height) {
-            this->height = height;
-            for (unsigned int i=0; i<height; i++) {
-                cells.push_back(Grid::GC_EMPTY);
-            }
-        }
-        std::vector<Grid::Cell> cells;
-    private:
-        unsigned int height;
-    };
-    std::vector<Column> columns;
+    std::vector< std::vector<Cell> > cells;
 };
 
 #endif /* end of include guard: GRID_HPP */

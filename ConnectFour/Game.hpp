@@ -109,7 +109,7 @@ protected:
     Status gameStatus;
     Grid *grid;
     Player *player1, *player2;
-    Player *currentPlayer, *theWinner;
+    Player *currentPlayer;
     void updateStatus();
     Player* findWinner() const;
     Player* cellToPlayer(Grid::Cell cell) const;
