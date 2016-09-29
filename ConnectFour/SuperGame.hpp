@@ -8,6 +8,7 @@ public:
     bool playNextTurn(unsigned int column);
 private:
     void removeFour();
+    std::vector<Player*> findAllWinners() const;
 };
 
 #endif /* end of include guard: SUPERGAME_HPP */

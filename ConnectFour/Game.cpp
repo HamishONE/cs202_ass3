@@ -25,14 +25,20 @@ void Game::setGrid(Grid* grid) {
 }
 
 void Game::setPlayerOne(Player* player) {
-    if (player == 0) return;
 
-    if (currentPlayer == player1) currentPlayer = player;
+    if (player == 0) {
+        return;
+    }
+
+    if (currentPlayer == player1) {
+        currentPlayer = player;
+    }
     player1 = player;
     updateStatus();
 }
 
 void Game::setPlayerTwo(Player* player) {
+
     if (player == 0) return;
     player2 = player;
     updateStatus();
@@ -64,6 +70,7 @@ const Player* Game::winner() const {
 }
 
 const Player* Game::nextPlayer() const {
+
     if (gameStatus != GS_IN_PROGRESS) {
         return 0;
     }
@@ -71,6 +78,7 @@ const Player* Game::nextPlayer() const {
 }
 
 Player* Game::cellToPlayer(Grid::Cell cell) const {
+
     if (cell == Grid::GC_PLAYER_ONE) {
         return player1;
     } else if (cell == Grid::GC_PLAYER_TWO) {
@@ -81,10 +89,14 @@ Player* Game::cellToPlayer(Grid::Cell cell) const {
 }
 
 Player* Game::findWinner() const {
+
     for (unsigned int i=0; i<grid->rowCount(); i++) {
         for (unsigned int j=0; j<grid->columnCount(); j++) {
+
             Grid::Cell cell = grid->cellAt(i, j);
-            if (cell == Grid::GC_EMPTY) continue;
+            if (cell == Grid::GC_EMPTY) {
+                continue;
+            }
 
             if (grid->cellAt(i+1, j) == cell && grid->cellAt(i+2, j) == cell && grid->cellAt(i+3, j) == cell) {
                 return cellToPlayer(cell);
@@ -95,12 +107,16 @@ Player* Game::findWinner() const {
             if (grid->cellAt(i+1, j+1) == cell && grid->cellAt(i+2, j+2) == cell && grid->cellAt(i+3, j+3) == cell) {
                 return cellToPlayer(cell);
             }
+            if (grid->cellAt(i+1, j-1) == cell && grid->cellAt(i+2, j-2) == cell && grid->cellAt(i+3, j-3) == cell) {
+                return cellToPlayer(cell);
+            }
         }
     }
     return 0;
 }
 
 bool Game::playNextTurn(unsigned int column) {
+
     if (gameStatus != GS_IN_PROGRESS) {
         return false;
     }

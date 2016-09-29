@@ -18,7 +18,12 @@ bool SuperGame::playNextTurn(unsigned int column) {
     }
 
     while (findWinner() != 0) {
-        findWinner()->increaseScore();
+        //findWinner()->increaseScore();
+
+        for (unsigned int i=0; i<findAllWinners().size(); i++) {
+            findAllWinners()[i]->increaseScore();
+        }
+
         removeFour();
     }
 
@@ -62,7 +67,7 @@ void addToList(std::vector< std::pair<unsigned int, unsigned int> > &list, std::
 
 void SuperGame::removeFour() {
 
-    std::vector<std::pair< unsigned int, unsigned int> > list;
+    std::vector< std::pair<unsigned int, unsigned int> > list;
 
     for (unsigned int i=0; i<grid->rowCount(); i++) {
         for (unsigned int j=0; j<grid->columnCount(); j++) {
@@ -71,17 +76,22 @@ void SuperGame::removeFour() {
 
             if (grid->cellAt(i+1, j) == cell && grid->cellAt(i+2, j) == cell && grid->cellAt(i+3, j) == cell) {
                 for (unsigned int k=0; k<4; k++) {
-                    addToList(list, std::pair<unsigned int, unsigned int>(i+k,j));
+                    addToList(list, std::pair<unsigned int, unsigned int>(i+k, j));
                 }
             }
             if (grid->cellAt(i, j+1) == cell && grid->cellAt(i, j+2) == cell && grid->cellAt(i, j+3) == cell) {
                 for (unsigned int k=0; k<4; k++) {
-                    addToList(list, std::pair<unsigned int, unsigned int>(i,j+k));
+                    addToList(list, std::pair<unsigned int, unsigned int>(i, j+k));
                 }
             }
             if (grid->cellAt(i+1, j+1) == cell && grid->cellAt(i+2, j+2) == cell && grid->cellAt(i+3, j+3) == cell) {
                 for (unsigned int k=0; k<4; k++) {
-                    addToList(list, std::pair<unsigned int, unsigned int>(i+k,j+k));
+                    addToList(list, std::pair<unsigned int, unsigned int>(i+k, j+k));
+                }
+            }
+            if (grid->cellAt(i+1, j-1) == cell && grid->cellAt(i+2, j-2) == cell && grid->cellAt(i+3, j-3) == cell) {
+                for (unsigned int k=0; k<4; k++) {
+                    addToList(list, std::pair<unsigned int, unsigned int>(i+k, j-k));
                 }
             }
         }
@@ -90,4 +100,41 @@ void SuperGame::removeFour() {
     for (unsigned int i=0; i<list.size(); i++) {
         grid->removeDisk(list[i].first, list[i].second);
     }
+}
+
+std::vector<Player*> SuperGame::findAllWinners() const {
+
+    bool p1 = false, p2 = false;
+
+    for (unsigned int i=0; i<grid->rowCount(); i++) {
+        for (unsigned int j=0; j<grid->columnCount(); j++) {
+
+            Grid::Cell cell = grid->cellAt(i, j);
+            if (cell == Grid::GC_EMPTY) {
+                continue;
+            }
+
+            if (grid->cellAt(i+1, j) == cell && grid->cellAt(i+2, j) == cell && grid->cellAt(i+3, j) == cell) {
+                if (cell == Grid::GC_PLAYER_ONE) p1 = true;
+                else p2 = true;
+            }
+            if (grid->cellAt(i, j+1) == cell && grid->cellAt(i, j+2) == cell && grid->cellAt(i, j+3) == cell) {
+                if (cell == Grid::GC_PLAYER_ONE) p1 = true;
+                else p2 = true;
+            }
+            if (grid->cellAt(i+1, j+1) == cell && grid->cellAt(i+2, j+2) == cell && grid->cellAt(i+3, j+3) == cell) {
+                if (cell == Grid::GC_PLAYER_ONE) p1 = true;
+                else p2 = true;
+            }
+            if (grid->cellAt(i+1, j-1) == cell && grid->cellAt(i+2, j-2) == cell && grid->cellAt(i+3, j-3) == cell) {
+                if (cell == Grid::GC_PLAYER_ONE) p1 = true;
+                else p2 = true;
+            }
+        }
+    }
+
+    std::vector<Player*> winners;
+    if (p1) winners.push_back(player1);
+    if (p2) winners.push_back(player2);
+    return winners;
 }

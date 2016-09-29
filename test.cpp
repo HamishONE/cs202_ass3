@@ -967,6 +967,135 @@ TestResult test_SuperGameMoveExample1() {
     
     return TR_PASS;
 }
+
+// Test for Figure 4 example (by Hamish O'Neill)
+TestResult test_fig4() {
+
+    Grid* grid = new Grid(6, 7);
+    SuperGame game;
+    game.setGrid(grid);
+    Player p1("Nick");
+    game.setPlayerOne(&p1);
+    Player p2("Nasser");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.nextPlayer() == &p1);
+
+    // Play turns
+    ASSERT(game.playNextTurn(1)); // p1
+    ASSERT(game.playNextTurn(0)); // p2
+    ASSERT(game.playNextTurn(2)); // p1
+    ASSERT(game.playNextTurn(3)); // p2
+    ASSERT(game.playNextTurn(1)); // p1
+    ASSERT(game.playNextTurn(0)); // p2
+    ASSERT(game.playNextTurn(2)); // p1
+    ASSERT(game.playNextTurn(4)); // p2
+    ASSERT(game.playNextTurn(3)); // p1
+    ASSERT(game.playNextTurn(4)); // p2
+    ASSERT(game.playNextTurn(3)); // p1
+    ASSERT(game.playNextTurn(2)); // p2
+    ASSERT(game.playNextTurn(3)); // p1
+    ASSERT(game.playNextTurn(1)); // p2
+    ASSERT(game.playNextTurn(1)); // p1
+    ASSERT(game.playNextTurn(4)); // p2
+    ASSERT(game.playNextTurn(2)); // p1
+    ASSERT(game.playNextTurn(3)); // p2
+
+    std::string gridStateInitial = "       "
+            "   2   "
+            " 111   "
+            " 2212  "
+            "21112  "
+            "21122  ";
+    // Check initial grid state
+    ASSERT(verifyGridState(*grid, gridStateInitial))
+
+    // play winning move
+    ASSERT(game.playNextTurn(4)); // p1
+
+    // Check post-connection state
+    std::string gridStateFinal = "       "
+            "       "
+            "       "
+            "   22  "
+            "22212  "
+            "21122  ";
+    ASSERT(verifyGridState(*grid, gridStateFinal));
+
+    // Check game status is in progress and the player scores have been adjusted appropriately
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == &p2);
+    ASSERT(p2.getScore() == 0);
+    ASSERT(p2.getWins() == 0);
+    ASSERT(p1.getScore() == 1);
+    ASSERT(p1.getWins() == 0);
+
+    return TR_PASS;
+}
+
+// Test for Figure 5 example (by Hamish O'Neill)
+TestResult test_fig5() {
+
+    Grid* grid = new Grid(6, 7);
+    SuperGame game;
+    game.setGrid(grid);
+    Player p1("Nick");
+    game.setPlayerOne(&p1);
+    Player p2("Nasser");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.nextPlayer() == &p1);
+
+    // Play turns
+    ASSERT(game.playNextTurn(0)); // p1
+    ASSERT(game.playNextTurn(4)); // p2
+    ASSERT(game.playNextTurn(2)); // p1
+    ASSERT(game.playNextTurn(2)); // p2
+    ASSERT(game.playNextTurn(3)); // p1
+    ASSERT(game.playNextTurn(6)); // p2
+    ASSERT(game.playNextTurn(4)); // p1
+    ASSERT(game.playNextTurn(5)); // p2
+    ASSERT(game.playNextTurn(5)); // p1
+    ASSERT(game.playNextTurn(6)); // p2
+    ASSERT(game.playNextTurn(2)); // p1
+    ASSERT(game.playNextTurn(3)); // p2
+    ASSERT(game.playNextTurn(3)); // p1
+    ASSERT(game.playNextTurn(6)); // p2
+
+    std::string gridStateInitial = "       "
+            "       "
+            "       "
+            "  11  2"
+            "  22112"
+            "1 11222";
+    // Check initial grid state
+    ASSERT(verifyGridState(*grid, gridStateInitial))
+
+    // play winning move
+    ASSERT(game.playNextTurn(1)); // p1
+
+    // Check post-connection state
+    std::string gridStateFinal = "       "
+            "       "
+            "       "
+            "       "
+            "      2"
+            "      2";
+    ASSERT(verifyGridState(*grid, gridStateFinal));
+
+    // Check game status is in progress and the player scores have been adjusted appropriately
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == &p2);
+    ASSERT(p2.getScore() == 1);
+    ASSERT(p2.getWins() == 0);
+    ASSERT(p1.getScore() == 2);
+    ASSERT(p1.getWins() == 0);
+
+    return TR_PASS;
+}
+
 #endif /*ENABLE_T4_TESTS*/
 
 /*
@@ -1008,6 +1137,8 @@ vector<TestResult (*)()> generateTests() {
 #ifdef ENABLE_T4_TESTS
     tests.push_back(&test_SuperGameMoveSimple);
     tests.push_back(&test_SuperGameMoveExample1);
+    tests.push_back(&test_fig4);
+    tests.push_back(&test_fig5);
 #endif /*ENABLE_T4_TESTS*/
 
     return tests;

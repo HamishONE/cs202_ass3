@@ -110,9 +110,9 @@ protected:
     Grid *grid;
     Player *player1, *player2;
     Player *currentPlayer;
-    void updateStatus();
-    Player* findWinner() const;
-    Player* cellToPlayer(Grid::Cell cell) const;
+    virtual void updateStatus();
+    virtual Player* findWinner() const;
+    virtual Player* cellToPlayer(Grid::Cell cell) const;
 };
 
 #endif /* end of include guard: GAME_HPP */
