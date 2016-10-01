@@ -1142,7 +1142,7 @@ TestResult test_fig5() {
 }
 
 
-//Test stalemate game where the grid is completely full but no rows of 4 have been made in any direction. (by Hamish O'Neill)
+// Test a game where the grid is full and player 2 wins because of a higher score (by Hamish O'Neill)
 TestResult test_SuperGameWin() {
     // Use a minimal grid size to limit the number of moves that need to be played
     Grid* grid = new Grid(4, 4);

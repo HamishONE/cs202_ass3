@@ -4,15 +4,7 @@ Grid::Grid(unsigned int rows, unsigned int columns) {
 
     this->rows = (rows > 4) ? rows : 4;
     cols = (columns > 4) ? columns : 4;
-
-    std::vector<Cell> column;
-    for (unsigned int i=0; i<this->rows; i++) {
-        column.push_back(Grid::GC_EMPTY);
-    }
-
-    for (unsigned int i=0; i<cols; i++) {
-        cells.push_back(column);
-    }
+    cells = std::vector< std::vector<Cell> >(cols, std::vector<Cell>(this->rows, Grid::GC_EMPTY));
 }
 
 bool Grid::insertDisc(unsigned int column, Cell disc) {
