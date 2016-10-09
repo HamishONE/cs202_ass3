@@ -14,7 +14,7 @@ bool Grid::insertDisc(unsigned int column, Cell disc) {
     }
 
     for (unsigned int i=0; i<rows; i++) {
-        if (cells[column][i] ==GC_EMPTY) {
+        if (cells[column][i] == GC_EMPTY) {
             cells[column][i] = disc;
             return true;
         }

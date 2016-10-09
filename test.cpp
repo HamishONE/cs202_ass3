@@ -869,6 +869,94 @@ TestResult test_fig1() {
     return TR_PASS;
 }
 
+//extra test by jgud007 testing a diagonal down connect 4
+TestResult test_DiagDown() {
+    Grid* grid = new Grid(4, 4);
+    Game game;
+    game.setGrid(grid);
+    Player p1("Nick");
+    game.setPlayerOne(&p1);
+    Player p2("Nasser");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+
+    // Generate a quick player one win
+    ASSERT(game.playNextTurn(0)); //p1 col 0
+    ASSERT(game.playNextTurn(3)); //p2 col 3
+    ASSERT(game.playNextTurn(1)); //p1 col 1
+    ASSERT(game.playNextTurn(2)); //p2 col 2
+    ASSERT(game.playNextTurn(0)); //p1 col 0
+    ASSERT(game.playNextTurn(3)); //p2 col 3
+    ASSERT(game.playNextTurn(1)); //p1 col 1
+    ASSERT(game.playNextTurn(2)); //p2 col 2
+    ASSERT(game.playNextTurn(2)); //p1 col 2
+    ASSERT(game.playNextTurn(0)); //p2 col 0
+    ASSERT(game.playNextTurn(3)); //p1 col 3
+    ASSERT(game.playNextTurn(1)); //p2 col 1
+    ASSERT(game.playNextTurn(2)); //p1 col 2
+    ASSERT(game.playNextTurn(0)); //p2 col 0
+
+    // Check grid state
+    std::string gridState = "2 1 "
+                            "2211"
+                            "1122"
+                            "1122";
+
+    ASSERT(verifyGridState(*grid, gridState));
+
+    ASSERT(game.status() == Game::GS_COMPLETE);
+    ASSERT(game.winner() == &p2);
+    ASSERT(p1.getScore() == 0);
+    ASSERT(p2.getScore() == 1);
+
+    return TR_PASS;
+
+}
+
+//extra test by jgud007 testing a diagonal up connect 4
+TestResult test_DiagUp() {
+    Grid* grid = new Grid(4, 4);
+    Game game;
+    game.setGrid(grid);
+    Player p1("Nick");
+    game.setPlayerOne(&p1);
+    Player p2("Nasser");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+
+    // Generate a quick player one win
+    ASSERT(game.playNextTurn(0)); //p1 col 0
+    ASSERT(game.playNextTurn(3)); //p2 col 3
+    ASSERT(game.playNextTurn(1)); //p1 col 1
+    ASSERT(game.playNextTurn(2)); //p2 col 2
+    ASSERT(game.playNextTurn(0)); //p1 col 0
+    ASSERT(game.playNextTurn(3)); //p2 col 3
+    ASSERT(game.playNextTurn(1)); //p1 col 1
+    ASSERT(game.playNextTurn(2)); //p2 col 2
+    ASSERT(game.playNextTurn(2)); //p1 col 2
+    ASSERT(game.playNextTurn(0)); //p2 col 0
+    ASSERT(game.playNextTurn(3)); //p1 col 3
+    ASSERT(game.playNextTurn(1)); //p2 col 1
+    ASSERT(game.playNextTurn(3)); //p1 col 3
+
+
+    // Check grid state
+    std::string gridState = "   1"
+                            "2211"
+                            "1122"
+                            "1122";
+
+    ASSERT(verifyGridState(*grid, gridState));
+
+    ASSERT(game.status() == Game::GS_COMPLETE);
+    ASSERT(game.winner() == &p1);
+    ASSERT(p1.getScore() == 1);
+    ASSERT(p2.getScore() == 0);
+
+    return TR_PASS;
+
+}
+
 #endif /*ENABLE_T3_TESTS*/
 
 #ifdef ENABLE_T4_TESTS
@@ -1229,6 +1317,8 @@ vector<TestResult (*)()> generateTests() {
     tests.push_back(&test_GameWinP1V);
     tests.push_back(&test_GameScore);
     tests.push_back(&test_fig1);
+    tests.push_back(&test_DiagDown);
+    tests.push_back(&test_DiagUp);
 #endif /*ENABLE_T3_TESTS*/
 #ifdef ENABLE_T4_TESTS
     tests.push_back(&test_SuperGameMoveSimple);
