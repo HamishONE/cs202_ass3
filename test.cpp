@@ -1279,6 +1279,257 @@ TestResult test_SuperGameWin() {
     return TR_PASS;
 }
 
+// Test a stalemate in a Super Game. (by Nathan McDougall, based on code by Hamish O'Neill)
+TestResult test_SuperGameStalemate() {
+    // 4x4 grid
+    Grid* grid = new Grid(4, 4);
+    SuperGame game;
+    game.setGrid(grid);
+    Player p1("Jeff");
+    game.setPlayerOne(&p1);
+    Player p2("Olivia");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+
+    // Hamish's elegant way of filling the Grid
+    for (int i = 0; i < 2; ++i) {
+        ASSERT(game.playNextTurn(0));
+        ASSERT(game.playNextTurn(2));
+        ASSERT(game.playNextTurn(1));
+        ASSERT(game.playNextTurn(3));
+        ASSERT(game.playNextTurn(2));
+        ASSERT(game.playNextTurn(0));
+        ASSERT(game.playNextTurn(3));
+        ASSERT(game.playNextTurn(1));
+    }
+
+    // Check grid state --- by Hamish
+    std::string gridState = "2211"
+            "1122"
+            "2211"
+            "1122";
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check everything is as if nothing had happened.
+    ASSERT(game.status() == Game::GS_COMPLETE);
+    ASSERT(!game.playNextTurn(0));
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == 0);
+    ASSERT(p2.getScore() == 0);
+    ASSERT(p2.getWins() == 0);
+    ASSERT(p1.getScore() == 0);
+    ASSERT(p1.getWins() == 0);
+
+    return TR_PASS;
+}
+
+// Test a larger game (by Nathan McDougall)
+TestResult test_SuperGameMedium() {
+    // 10x10 grid
+    Grid* grid = new Grid(10, 10);
+    SuperGame game;
+    game.setGrid(grid);
+    Player p1("Hillary");
+    game.setPlayerOne(&p1);
+    Player p2("Donald");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+
+    // Just two stacks side by side, each should get a point out of it.
+    for (unsigned int i = 1; i <= 4; ++i) {
+        ASSERT(game.playNextTurn(0)); //p1
+        ASSERT(game.playNextTurn(1)); //p2
+    }
+
+    // Check grid state is empty.
+    std::string gridState = "          "
+                            "          "
+                            "          "
+                            "          "
+                            "          "
+                            "          "
+                            "          "
+                            "          "
+                            "          "
+                            "          ";
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check the applicable points have been awarded and that nothing funny is going on.
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == &p1);
+    ASSERT(p1.getScore() == 1);
+    ASSERT(p1.getWins() == 0);
+    ASSERT(p2.getScore() == 1);
+    ASSERT(p2.getWins() == 0);
+
+    // Up-scaled version of the princple of figure 5.
+    for (unsigned int i = 1; i <= 3 ; ++i) {
+        ASSERT(game.playNextTurn(i)); //p1
+        ASSERT(game.playNextTurn(9)); //p2
+    }
+
+    // Junk move to make it player 2's turn.
+    ASSERT(game.playNextTurn(9)); //p1
+
+    //Check that everything is okay in the intermediary.
+    gridState = "          "
+                "          "
+                "          "
+                "          "
+                "          "
+                "          "
+                "         1"
+                "         2"
+                "         2"
+                " 111     2";
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Continue stacking so that a collapse is set up like in figure 5.
+    for (unsigned int i = 1; i <= 4 ; ++i) {
+        for (unsigned int j = 2; j <= 5 ; ++j) {
+            ASSERT(game.playNextTurn(j)); //p2
+            ASSERT(game.playNextTurn(j)); //p1
+        }
+    }
+
+    // Check the stack is okay.
+    gridState = "          "
+                "  11      "
+                "  2211    "
+                "  1122    "
+                "  2211    "
+                "  1122    "
+                "  2211   1"
+                "  1122   2"
+                "  2211   2"
+                " 11122   2";
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Get p2 to make a connect 4 by placing in columns 6 and 7.
+    // Get p1 to meanwhile finish up in column 9 and prepare a win there.
+    for (unsigned int i = 6; i <= 7 ; ++i) {
+            ASSERT(game.playNextTurn(i)); //p2
+            ASSERT(game.playNextTurn(9)); //p1
+    }
+
+    // Check the stack has collapsed successfully
+    gridState = "          "
+                "          "
+                "          "
+                "          "
+                "         1"
+                "         1"
+                "         1"
+                "         2"
+                "  11     2"
+                "  22     2";
+    ASSERT(verifyGridState(*grid, gridState));    
+
+    // Check the applicable points have been awarded and that nothing funny is going on.
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == &p2);
+    ASSERT(p1.getScore() == 2);
+    ASSERT(p1.getWins() == 0);
+    ASSERT(p2.getScore() == 3);
+    ASSERT(p2.getWins() == 0);
+
+    // Make a connect 7 for both players.
+    // Also, finish up the two sets of 3 in column 9, emptying the grid.
+    ASSERT(game.playNextTurn(1)); //p2
+    ASSERT(game.playNextTurn(9)); //p1
+    ASSERT(game.playNextTurn(5)); //p2
+    ASSERT(game.playNextTurn(1)); //p1
+    ASSERT(game.playNextTurn(6)); //p2
+    ASSERT(game.playNextTurn(6)); //p1
+    ASSERT(game.playNextTurn(7)); //p2
+    ASSERT(game.playNextTurn(7)); //p1
+    ASSERT(game.playNextTurn(4)); //p2
+    ASSERT(game.playNextTurn(5)); //p1
+    ASSERT(game.playNextTurn(9)); //p2
+    ASSERT(game.playNextTurn(4)); //p1
+
+    // Check the stack has collapsed successfully
+    gridState = "          "
+                "          "
+                "          "
+                "          "
+                "          "
+                "          "
+                "          "
+                "          "
+                "          "
+                "          ";
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check the applicable points have been awarded and that nothing funny is going on.
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == &p2);
+    ASSERT(p1.getScore() == 4);
+    ASSERT(p1.getWins() == 0);
+    ASSERT(p2.getScore() == 5);
+    ASSERT(p2.getWins() == 0);
+
+    // Fill up a column, and check the playNextTurn is false when we try further.
+    for (unsigned int i = 1; i <= 5; ++i) {
+        ASSERT(game.playNextTurn(1));
+        ASSERT(game.playNextTurn(1));
+    }
+    ASSERT(!game.playNextTurn(1));
+    ASSERT(!game.playNextTurn(1));
+
+    // Junk move to make it player 1's turn.
+    ASSERT(game.playNextTurn(9)); //p2
+
+    // Fill up every other column.
+    for (unsigned int i = 0; i <= 8; i += 2) {
+        for (unsigned int j = 1; j <= 5; ++j) {
+            ASSERT(game.playNextTurn(i));
+            ASSERT(game.playNextTurn(i));
+        }
+    }
+
+    // Junk move to make it player 2's turn.
+    ASSERT(game.playNextTurn(9)); //p1
+
+    // Fill up every other column.
+    for (unsigned int i = 3; i <= 7; i += 2) {
+        for (unsigned int j = 1; j <= 5; ++j) {
+            ASSERT(game.playNextTurn(i));
+            //grid->printState();
+            ASSERT(game.playNextTurn(i));
+            //grid->printState();
+        }
+    }
+
+
+    // Get some collapsing from the diagonals going on: check all is well.
+    gridState = "        2 "
+                "       11 "
+                "    21222 "
+                "    12111 "
+                "    21222 "
+                "    12211 "
+                "    22122 "
+                "11  11211 "
+                "2122211221"
+                "1211121112";
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check the applicable points have been awarded and that nothing funny is going on.
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == &p2);
+    ASSERT(p1.getScore() == 8);
+    ASSERT(p1.getWins() == 0);
+    ASSERT(p2.getScore() == 10);
+    ASSERT(p2.getWins() == 0);
+
+    return TR_PASS;
+}
+
 #endif /*ENABLE_T4_TESTS*/
 
 /*
@@ -1326,6 +1577,8 @@ vector<TestResult (*)()> generateTests() {
     tests.push_back(&test_fig4);
     tests.push_back(&test_fig5);
     tests.push_back(&test_SuperGameWin);
+    tests.push_back(&test_SuperGameStalemate);
+    tests.push_back(&test_SuperGameMedium);
 #endif /*ENABLE_T4_TESTS*/
 
     return tests;

@@ -1,5 +1,10 @@
 #include "SuperGame.hpp"
 
+SuperGame::SuperGame() {
+	Game();
+	winningPlayer = 0;
+}
+
 bool SuperGame::playNextTurn(unsigned int column) {
 
     if (gameStatus != GS_IN_PROGRESS) {
