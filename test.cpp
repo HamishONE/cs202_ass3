@@ -1498,12 +1498,9 @@ TestResult test_SuperGameMedium() {
     for (unsigned int i = 3; i <= 7; i += 2) {
         for (unsigned int j = 1; j <= 5; ++j) {
             ASSERT(game.playNextTurn(i));
-            //grid->printState();
             ASSERT(game.playNextTurn(i));
-            //grid->printState();
         }
     }
-
 
     // Get some collapsing from the diagonals going on: check all is well.
     gridState = "        2 "
@@ -1529,6 +1526,166 @@ TestResult test_SuperGameMedium() {
 
     return TR_PASS;
 }
+
+// Test on a very large grid (by Nathan McDougall)
+TestResult test_SuperGameBig() {
+    // 4x4 grid
+    Grid* grid = new Grid(1000, 1000);
+    SuperGame game;
+    game.setGrid(grid);
+    Player p1("Jian");
+    game.setPlayerOne(&p1);
+    Player p2("Tess");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+
+    // Play two competeing towers
+    for (int i = 1; i <= 4; ++i) {
+        ASSERT(game.playNextTurn(768)); //p1
+        ASSERT(game.playNextTurn(244)); //p2
+    }
+
+    // Check the grid is empty.
+    std::string gridState = " ";
+    for (int i = 1; i < 1000000; ++i) {
+        gridState += " ";
+    }
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check everything.
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == &p1);
+    ASSERT(p2.getScore() == 1);
+    ASSERT(p2.getWins() == 0);
+    ASSERT(p1.getScore() == 1);
+    ASSERT(p1.getWins() == 0);
+
+    return TR_PASS;
+}
+
+// Test a draw by equal points. (by Nathan McDougall, based on code by Hamish O'Neill)
+TestResult test_SuperGamePointDraw() {
+    // 4x4 grid
+    Grid* grid = new Grid(4, 4);
+    SuperGame game;
+    game.setGrid(grid);
+    Player p1("Eric");
+    game.setPlayerOne(&p1);
+    Player p2("Jean-Marie");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+
+    // Play two competeing towers
+    for (int i = 1; i <= 4; ++i) {
+        ASSERT(game.playNextTurn(1)); //p1
+        ASSERT(game.playNextTurn(2)); //p2
+    }
+
+    // Check the grid is empty.
+    std::string gridState = " ";
+    for (int i = 1; i < 16; ++i) {
+        gridState += " ";
+    }
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check everything.
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == &p1);
+    ASSERT(p2.getScore() == 1);
+    ASSERT(p2.getWins() == 0);
+    ASSERT(p1.getScore() == 1);
+    ASSERT(p1.getWins() == 0);
+
+    // Hamish's elegant way of filling the Grid
+    for (int i = 0; i < 2; ++i) {
+        ASSERT(game.playNextTurn(0));
+        ASSERT(game.playNextTurn(2));
+        ASSERT(game.playNextTurn(1));
+        ASSERT(game.playNextTurn(3));
+        ASSERT(game.playNextTurn(2));
+        ASSERT(game.playNextTurn(0));
+        ASSERT(game.playNextTurn(3));
+        ASSERT(game.playNextTurn(1));
+    }
+
+    // Check grid state --- by Hamish
+    gridState = "2211"
+                "1122"
+                "2211"
+                "1122";
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check that the game was drawn correctly.
+    ASSERT(game.status() == Game::GS_COMPLETE);
+    ASSERT(!game.playNextTurn(0));
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == 0);
+    ASSERT(p2.getScore() == 1);
+    ASSERT(p2.getWins() == 0);
+    ASSERT(p1.getScore() == 1);
+    ASSERT(p1.getWins() == 0);
+
+    return TR_PASS;
+}
+
+// Test a game where players are swapped mid-game. (by Nathan McDougall, based on code by Hamish O'Neill)
+TestResult test_SuperGamePlayerSwap() {
+    // 4x64 grid
+    Grid* grid = new Grid(4, 64);
+    SuperGame game;
+    game.setGrid(grid);
+    Player p1("Abishek");
+    Player p1new("Bob");
+    game.setPlayerOne(&p1);
+    Player p2("Elanor");
+    Player p2new("Cynthia");
+    game.setPlayerTwo(&p2);
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+
+    // Play two competeing towers
+    for (int i = 1; i <= 4; ++i) {
+        ASSERT(game.playNextTurn(35)); //p1
+        ASSERT(game.playNextTurn(20)); //p2
+    }
+
+    // Check the grid is empty.
+    std::string gridState = " ";
+    for (int i = 1; i < 256; ++i) {
+        gridState += " ";
+    }
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Swap around the players
+    game.setPlayerOne(&p1new);
+    game.setPlayerTwo(&p2new);
+
+    // Play two competeing towers
+    for (int i = 1; i <= 4; ++i) {
+        ASSERT(game.playNextTurn(17)); //p1
+        ASSERT(game.playNextTurn(59)); //p2
+    }
+
+    // Check the grid is empty.
+    ASSERT(verifyGridState(*grid, gridState));
+
+    // Check everything.
+    ASSERT(game.status() == Game::GS_IN_PROGRESS);
+    ASSERT(game.winner() == 0);
+    ASSERT(game.nextPlayer() == &p1new);
+    ASSERT(p2.getScore() == 1);
+    ASSERT(p2new.getScore() == 1);
+    ASSERT(p2.getWins() == 0);
+    ASSERT(p2new.getWins() == 0);
+    ASSERT(p1.getScore() == 1);
+    ASSERT(p1new.getScore() == 1);
+    ASSERT(p1.getWins() == 0);
+    ASSERT(p1new.getWins() == 0);
+
+    return TR_PASS;
+}
+
 
 #endif /*ENABLE_T4_TESTS*/
 
@@ -1579,6 +1736,9 @@ vector<TestResult (*)()> generateTests() {
     tests.push_back(&test_SuperGameWin);
     tests.push_back(&test_SuperGameStalemate);
     tests.push_back(&test_SuperGameMedium);
+    tests.push_back(&test_SuperGameBig);
+    tests.push_back(&test_SuperGamePointDraw);
+    tests.push_back(&test_SuperGamePlayerSwap);
 #endif /*ENABLE_T4_TESTS*/
 
     return tests;
