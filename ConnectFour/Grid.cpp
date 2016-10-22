@@ -6,7 +6,7 @@ Grid::Grid(unsigned int rows, unsigned int columns) {
     this->rows = (rows > 4) ? rows : 4;
     this->cols = (columns > 4) ? columns : 4;
 
-    // Create a vector of vector the with the dimensions given
+    // Create a vector of vectors the with the dimensions given
     cells = std::vector< std::vector<Cell> >(this->cols, std::vector<Cell>(this->rows, Grid::GC_EMPTY));
 }
 

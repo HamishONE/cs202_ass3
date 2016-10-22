@@ -11,7 +11,6 @@ public:
 private:
     void removeFour();
     std::vector<Player*> findAllWinners() const;
-    void findEnd();
     const Player *winningPlayer;
 };
 

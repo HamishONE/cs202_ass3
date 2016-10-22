@@ -1,3 +1,4 @@
+#include <set>
 #include "SuperGame.hpp"
 
 SuperGame::SuperGame() {
@@ -45,51 +46,44 @@ bool SuperGame::playNextTurn(unsigned int column) {
         currentPlayer = player1;
     }
 
-    findEnd();
-
-    return true;
-}
-
-void SuperGame::findEnd() {
-
     for (unsigned int i=0; i<grid->columnCount(); i++) {
         if (grid->cellAt(0, i) == Grid::GC_EMPTY) {
-            return;
+            return true;
         }
     }
 
     gameStatus = GS_COMPLETE;
+
     if (player1->getScore() > player2->getScore()) {
         player1->increaseWins();
         winningPlayer = player1;
     }
-    if (player2->getScore() > player1->getScore()) {
+    else if (player2->getScore() > player1->getScore()) {
         player2->increaseWins();
         winningPlayer = player2;
     }
+
+    return true;
 }
 
 const Player* SuperGame::winner() const {
 
+    // If the game is not complete do nothing
     if (gameStatus != GS_COMPLETE) {
         return 0;
     }
-    return winningPlayer;
-}
 
-void addToList(std::vector< std::pair<unsigned int, unsigned int> > &list, std::pair<unsigned int, unsigned int> pair) {
-    for (unsigned int i=0; i<list.size(); i++) {
-        if (list[i].first == pair.first && list[i].second == pair.second) {
-            return;
-        }
-    }
-    list.push_back(pair);
+    // Otherwise return the winner
+    return winningPlayer;
 }
 
 void SuperGame::removeFour() {
 
-    std::vector< std::pair<unsigned int, unsigned int> > list;
+    // Create a list of coordinates on the grid as a set to store discs to remove in a top-down order
+    typedef std::pair<unsigned int, unsigned int> coord;
+    std::set<coord> list;
 
+    // Loop through all spaces in the grid
     for (unsigned int i=0; i<grid->rowCount(); i++) {
         for (unsigned int j=0; j<grid->columnCount(); j++) {
             Grid::Cell cell = grid->cellAt(i, j);
@@ -97,29 +91,29 @@ void SuperGame::removeFour() {
 
             if (grid->cellAt(i+1, j) == cell && grid->cellAt(i+2, j) == cell && grid->cellAt(i+3, j) == cell) {
                 for (unsigned int k=0; k<4; k++) {
-                    addToList(list, std::pair<unsigned int, unsigned int>(i+k, j));
+                    list.insert(coord(i+k, j));
                 }
             }
             if (grid->cellAt(i, j+1) == cell && grid->cellAt(i, j+2) == cell && grid->cellAt(i, j+3) == cell) {
                 for (unsigned int k=0; k<4; k++) {
-                    addToList(list, std::pair<unsigned int, unsigned int>(i, j+k));
+                    list.insert(coord(i, j+k));
                 }
             }
             if (grid->cellAt(i+1, j+1) == cell && grid->cellAt(i+2, j+2) == cell && grid->cellAt(i+3, j+3) == cell) {
                 for (unsigned int k=0; k<4; k++) {
-                    addToList(list, std::pair<unsigned int, unsigned int>(i+k, j+k));
+                    list.insert(coord(i+k, j+k));
                 }
             }
             if (grid->cellAt(i+1, j-1) == cell && grid->cellAt(i+2, j-2) == cell && grid->cellAt(i+3, j-3) == cell) {
                 for (unsigned int k=0; k<4; k++) {
-                    addToList(list, std::pair<unsigned int, unsigned int>(i+k, j-k));
+                    list.insert(coord(i+k, j-k));
                 }
             }
         }
     }
 
-    for (unsigned int i=0; i<list.size(); i++) {
-        grid->removeDisk(list[i].first, list[i].second);
+    for (std::set<coord>::iterator it=list.begin(); it!=list.end(); it++) {
+        grid->removeDisk(it->first, it->second);
     }
 }
 
