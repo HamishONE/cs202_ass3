@@ -1,6 +1,7 @@
+#include "SuperGame.hpp"
+#include "Player.hpp"
 #include <set>
 #include <map>
-#include "SuperGame.hpp"
 
 bool SuperGame::playNextTurn(unsigned int column) {
 

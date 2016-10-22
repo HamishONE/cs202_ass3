@@ -1,8 +1,8 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#include "Player.hpp"
 #include "Grid.hpp"
+class Player;
 
 /*
 The game class oversees all game logic and state. Once a game is created it must be assigned two players and a grid

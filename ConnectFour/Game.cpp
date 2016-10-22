@@ -1,5 +1,6 @@
-#include <map>
 #include "Game.hpp"
+#include "Player.hpp"
+#include <map>
 
 Game::Game() {
 
@@ -196,4 +197,3 @@ bool Game::playNextTurn(unsigned int column) {
     gameStatus = GS_COMPLETE;
     return true;
 }
-
