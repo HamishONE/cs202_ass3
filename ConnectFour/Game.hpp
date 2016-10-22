@@ -112,7 +112,7 @@ protected:
     Player *currentPlayer;
     virtual void updateStatus();
     virtual Player* findWinner() const;
-    virtual Player* cellToPlayer(Grid::Cell cell) const;
+    void setPlayer(Player* &newPlayer, Player* &oldPlayer);
 };
 
 #endif /* end of include guard: GAME_HPP */

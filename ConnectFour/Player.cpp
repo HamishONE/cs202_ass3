@@ -1,7 +1,10 @@
 #include "Player.hpp"
 
 Player::Player(const std::string& name) {
+
     this->name = name;
+
+    // Initialise score and wins to zero
     score = 0;
     wins = 0;
 }

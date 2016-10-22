@@ -1,16 +1,22 @@
 #include "SuperGame.hpp"
 
 SuperGame::SuperGame() {
+
+    // Call the parent class implementation first
 	Game();
+
+    // Initialise the winning player pointer to null
 	winningPlayer = 0;
 }
 
 bool SuperGame::playNextTurn(unsigned int column) {
 
+    // If the game is not in progress do nothing
     if (gameStatus != GS_IN_PROGRESS) {
         return false;
     }
 
+    // Create a disc according to the current player
     Grid::Cell disc;
     if (currentPlayer == player1) {
         disc = Grid::GC_PLAYER_ONE;
@@ -18,10 +24,12 @@ bool SuperGame::playNextTurn(unsigned int column) {
         disc = Grid::GC_PLAYER_TWO;
     }
 
-    if (grid->insertDisc(column, disc) == false) {
+    // Insert the disc into the specified columns but return if it fails
+    if (!grid->insertDisc(column, disc)) {
         return false;
     }
 
+    // Loop while there is still a chain of 4 discs
     while (findWinner() != 0) {
 
         for (unsigned int i=0; i<findAllWinners().size(); i++) {

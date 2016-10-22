@@ -2,6 +2,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <vector>
+#include <time.h>
 
 // flags to enable tests for the later parts of the assignment
 #define ENABLE_T1_TESTS
@@ -1528,9 +1529,10 @@ TestResult test_SuperGameMedium() {
 }
 
 // Test on a very large grid (by Nathan McDougall)
+#define SIZE 1000
 TestResult test_SuperGameBig() {
     // 4x4 grid
-    Grid* grid = new Grid(1000, 1000);
+    Grid* grid = new Grid(SIZE, SIZE);
     SuperGame game;
     game.setGrid(grid);
     Player p1("Jian");
@@ -1541,13 +1543,15 @@ TestResult test_SuperGameBig() {
 
     // Play two competeing towers
     for (int i = 1; i <= 4; ++i) {
+		//cout << "starting turn " << i << endl;
         ASSERT(game.playNextTurn(768)); //p1
         ASSERT(game.playNextTurn(244)); //p2
+		//cout << "finished turn " << i << endl;
     }
 
     // Check the grid is empty.
     std::string gridState = " ";
-    for (int i = 1; i < 1000000; ++i) {
+    for (unsigned int i = 1; i < SIZE*SIZE; ++i) {
         gridState += " ";
     }
     ASSERT(verifyGridState(*grid, gridState));
@@ -1772,8 +1776,22 @@ int main(int argc, char const* argv[]) {
         // otherwise, run all tests
         // Make sure to update this section as you add more tests
         // Add the tests for the first task
+    	//small edit to display time taken for test 34 (jgud007)
         for (unsigned int t = 0; t < tests_to_run.size(); ++t) {
             ++run_count;
+            if (t==34){
+            	time_t start = time(0);
+            	TestResult result = tests_to_run[34]();
+            	time_t end = time(0);
+            	 if (result == TR_FAIL) {
+            	                cout << "FAIL: Test " << t << " failed." << endl;
+            	                ++fail_count;
+            	            } else {
+            	                cout << "PASS: Test " << t << " passed taking "<< end-start << " seconds." << endl;
+            	                ++pass_count;
+            	            }
+            }
+            else {
             TestResult result = tests_to_run[t]();
             if (result == TR_FAIL) {
                 cout << "FAIL: Test " << t << " failed." << endl;
@@ -1781,6 +1799,7 @@ int main(int argc, char const* argv[]) {
             } else {
                 cout << "PASS: Test " << t << " passed." << endl;
                 ++pass_count;
+            }
             }
         }
     }
