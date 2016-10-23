@@ -1,5 +1,4 @@
 #include "Game.hpp"
-#include "Player.hpp"
 #include <map>
 
 Game::Game() {
@@ -117,7 +116,6 @@ Player* Game::findWinner() const {
     std::map<Grid::Cell, Player*> map;
     map[Grid::GC_PLAYER_ONE] = player1;
     map[Grid::GC_PLAYER_TWO] = player2;
-    map[Grid::GC_EMPTY] = 0;
 
     // Loop through every cell in the grid
     for (unsigned int i=0; i<grid->rowCount(); i++) {
@@ -164,7 +162,7 @@ bool Game::playNextTurn(unsigned int column) {
         disc = Grid::GC_PLAYER_TWO;
     }
 
-    // Create a disc according to the current player
+    // Insert the disc into the specified columns but return if it fails
     if (!grid->insertDisc(column, disc)) {
         return false;
     }
@@ -188,7 +186,7 @@ bool Game::playNextTurn(unsigned int column) {
 
     } else {
 
-        // If there is a winner increase there score and wins by 1
+        // If there is a winner increase their score and wins by 1
         findWinner()->increaseWins();
         findWinner()->increaseScore();
     }

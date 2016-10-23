@@ -8,7 +8,7 @@ public:
     bool playNextTurn(unsigned int column);
     const Player* winner() const;
 private:
-    void findAllWinners() const;
+    void findAllWinners();
 };
 
 #endif /* end of include guard: SUPERGAME_HPP */

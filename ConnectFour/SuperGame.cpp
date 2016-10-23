@@ -1,5 +1,4 @@
 #include "SuperGame.hpp"
-#include "Player.hpp"
 #include <set>
 #include <map>
 
@@ -75,7 +74,7 @@ const Player* SuperGame::winner() const {
     return 0;
 }
 
-void SuperGame::findAllWinners() const {
+void SuperGame::findAllWinners() {
 
     // Create a list of coordinates on the grid as a set to store discs to remove in a top-down order
     typedef std::pair<unsigned int, unsigned int> coord;
