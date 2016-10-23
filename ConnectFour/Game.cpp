@@ -31,6 +31,11 @@ void Game::updateStatus() {
 
 void Game::setGrid(Grid* grid) {
 
+    // If the new grid provided is null do nothing
+    if (grid == 0) {
+        return;
+    }
+
     // Remove any previous allocated grid from the heap
     delete this->grid;
 
@@ -43,8 +48,8 @@ void Game::setGrid(Grid* grid) {
 
 void Game::setPlayer(Player* &newPlayer, Player* &oldPlayer) {
 
-    // If the new player provided in null do nothing
-    if (newPlayer == 0) {
+    // If the new player provided is null or already a player do nothing
+    if (newPlayer == 0 || newPlayer == player1 || newPlayer == player2) {
         return;
     }
 
@@ -80,8 +85,8 @@ void Game::restart() {
     player1->resetScore();
     player2->resetScore();
 
-    // Set the game status back to in progress
-    gameStatus = GS_IN_PROGRESS;
+    // Update the game status to in progress if appropriate
+    updateStatus();
 }
 
 Game::Status Game::status() const {

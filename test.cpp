@@ -958,6 +958,27 @@ TestResult test_DiagUp() {
 
 }
 
+// A test that you have properly read the header file comments (by Hamish O'Neill)
+TestResult test_strictCompliance() {
+
+    Grid* grid = new Grid(4, 4);
+    Game game;
+    game.setGrid(grid);
+    game.setGrid(0); //should have no effect
+    Player p1("Nick");
+    game.setPlayerOne(&p1);
+    Player p2("Nasser");
+    game.setPlayerTwo(&p2);
+    game.setPlayerOne(&p2); // should have no effect
+    game.setPlayerTwo(&p1); // should have no effect
+    ASSERT(game.status() == Game::GS_IN_PROGRESS); // will fail if null grid changed status
+    ASSERT(game.nextPlayer() == &p1); // will fail if adding p2 twice was accepted
+    ASSERT(game.playNextTurn(0)); // will fail if the null grid was accepted
+    ASSERT(game.nextPlayer() == &p2); // will fail if adding p1 twice was accepted
+
+    return TR_PASS;
+}
+
 #endif /*ENABLE_T3_TESTS*/
 
 #ifdef ENABLE_T4_TESTS
@@ -1543,10 +1564,10 @@ TestResult test_SuperGameBig() {
 
     // Play two competeing towers
     for (int i = 1; i <= 4; ++i) {
-		//cout << "starting turn " << i << endl;
+        //cout << "starting turn " << i << endl;
         ASSERT(game.playNextTurn(768)); //p1
         ASSERT(game.playNextTurn(244)); //p2
-		//cout << "finished turn " << i << endl;
+        //cout << "finished turn " << i << endl;
     }
 
     // Check the grid is empty.
@@ -1731,6 +1752,7 @@ vector<TestResult (*)()> generateTests() {
     tests.push_back(&test_fig1);
     tests.push_back(&test_DiagDown);
     tests.push_back(&test_DiagUp);
+    tests.push_back(&test_strictCompliance);
 #endif /*ENABLE_T3_TESTS*/
 #ifdef ENABLE_T4_TESTS
     tests.push_back(&test_SuperGameMoveSimple);
@@ -1776,30 +1798,30 @@ int main(int argc, char const* argv[]) {
         // otherwise, run all tests
         // Make sure to update this section as you add more tests
         // Add the tests for the first task
-    	//small edit to display time taken for test 34 (jgud007)
+        //small edit to display time taken for test 34 (jgud007)
         for (unsigned int t = 0; t < tests_to_run.size(); ++t) {
             ++run_count;
             if (t==34){
-            	time_t start = time(0);
-            	TestResult result = tests_to_run[34]();
-            	time_t end = time(0);
-            	 if (result == TR_FAIL) {
-            	                cout << "FAIL: Test " << t << " failed." << endl;
-            	                ++fail_count;
-            	            } else {
-            	                cout << "PASS: Test " << t << " passed taking "<< end-start << " seconds." << endl;
-            	                ++pass_count;
-            	            }
+                time_t start = time(0);
+                TestResult result = tests_to_run[34]();
+                time_t end = time(0);
+                if (result == TR_FAIL) {
+                    cout << "FAIL: Test " << t << " failed." << endl;
+                    ++fail_count;
+                } else {
+                    cout << "PASS: Test " << t << " passed taking "<< end-start << " seconds." << endl;
+                    ++pass_count;
+                }
             }
             else {
-            TestResult result = tests_to_run[t]();
-            if (result == TR_FAIL) {
-                cout << "FAIL: Test " << t << " failed." << endl;
-                ++fail_count;
-            } else {
-                cout << "PASS: Test " << t << " passed." << endl;
-                ++pass_count;
-            }
+                TestResult result = tests_to_run[t]();
+                if (result == TR_FAIL) {
+                    cout << "FAIL: Test " << t << " failed." << endl;
+                    ++fail_count;
+                } else {
+                    cout << "PASS: Test " << t << " passed." << endl;
+                    ++pass_count;
+                }
             }
         }
     }
